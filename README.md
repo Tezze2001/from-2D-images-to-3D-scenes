@@ -1,1 +1,1 @@
-# from-2D-images-to-3D-scenes
+# From 2D images to 3D scenes
