@@ -1,0 +1,6 @@
+# exclude virtual enviroment
+source/venv/
+
+# exlude datasets
+image_datasets/archive/
+image_datasets/yolo/
