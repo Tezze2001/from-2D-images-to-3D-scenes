@@ -1,0 +1,9 @@
+.venv/
+input
+panda3d_viewer
+output*
+models_source/indexmatting/indexnet_matting.pth.tar
+models_source/isnet/isnet-general-use.pth
+models_source/lama/best.ckpt
+models_source/removebackgroundv2/torchscript_resnet50_fp32.pth
+

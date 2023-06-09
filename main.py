@@ -36,6 +36,7 @@ paths = {
     'image': os.path.abspath(INPUT_DIR + IMG_INPUT),
     'image_resized': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + IMG_EXT),
     'lama_mask': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + '_mask001' + IMG_EXT),
+    'lama_mask_dilated': os.path.abspath(INPUT_DIR + 'lama/' + IMG_INPUT.split('.')[0] + '_mask001' + IMG_EXT),
     'BG': os.path.abspath(INPUT_DIR + 'BG' + IMG_EXT),
     'rembgv2_seg': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + '_seg' + IMG_EXT),
     'trimap': os.path.abspath(INPUT_DIR + 'trimap' + IMG_EXT),
@@ -43,7 +44,6 @@ paths = {
     'FG': os.path.abspath(INPUT_DIR + 'FG' + IMG_EXT),
     'OUTPUT_VIDEO': os.path.abspath('./output.avi')
 }
-
 
 def resize_image(input_path, output_path):
     imm = Image.open(input_path)
@@ -67,8 +67,13 @@ def generate_trimap(alpha):
 def binarization_mask(input_path):
     imm = np.array(Image.open(input_path).convert('L'))
     imm[imm != 0] = 255
-    #imm = Image.fromarray(imm.astype('uint8'), 'L')
     return imm
+
+def dilate_mask(input_path, output_path):
+    imm = cv.imread(input_path, cv.IMREAD_GRAYSCALE)
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
+    dilated = cv.dilate(imm, kernel, iterations=10, borderType=cv.BORDER_CONSTANT)
+    cv.imwrite(output_path, dilated)
 
 def apply_mask(img_path, fg_alpha_path, out_fg_path):
     img = Image.open(img_path)
@@ -76,14 +81,13 @@ def apply_mask(img_path, fg_alpha_path, out_fg_path):
     img.putalpha(fg_alpha)
     img.save(out_fg_path)
 
-def spinCameraTask(viewer,task):
+def spinCameraTask(viewer, width, height, task):
     angleDegrees = task.time * 50
     angleRadians = angleDegrees * pi / 180.0
     x = 40 * sin(angleRadians)
     y = 40 * cos(angleRadians)
-    viewer.reset_camera(pos=(x, y, 1500), look_at=(x, y, 0))
+    viewer.reset_camera(pos=(x, y, (width)/(800) * 1500), look_at=(x, y, 0))
     return Task.cont
-
 
 width, height = resize_image(paths['image'], paths['image_resized'])
 
@@ -102,6 +106,14 @@ Image.fromarray(generate_trimap(np.array(Image.open(paths['rembgv2_seg']).conver
 print('--IndexMatting--')
 imagematting_indexmatting(paths['image_resized'], paths['trimap'], models['indexmatting'], paths['FG_seg'])
 apply_mask(paths['image_resized'], paths['FG_seg'], os.path.abspath(INPUT_DIR + 'FG' + IMG_EXT))
+
+print('--Creating foreground--')
+
+os.makedirs(INPUT_DIR + 'lama') if not os.path.exists(INPUT_DIR + 'lama') else None
+os.system('cp ' + paths['image_resized'] + ' ' + INPUT_DIR + 'lama/' + paths['image_resized'].split('/')[-1])  
+dilate_mask(paths['lama_mask'], paths['lama_mask_dilated'])
+
+imageinpainting_lama(INPUT_DIR + 'lama', models['lama']['model'], models['lama']['checkpoint'],paths['BG'])
 
 print('--Creating scene--')
 
@@ -125,6 +137,6 @@ with Viewer(window_type='offscreen', config=config) as viewer:
     viewer.set_material('root', 'BG', color_rgba=(1, 1, 1, 1), texture_path=paths['BG'])
     viewer.move_nodes('root', {'BG': ((0, 0, 0), (1, 0, 0, 0))})
     print('Control moving')
-    viewer.add_task(spinCameraTask, "Moving", extra_args = [viewer], append_task=True)
+    viewer.add_task(spinCameraTask, "Moving", extra_args = [viewer, width, height], append_task=True)
     print('recording film')
     viewer.save_movie(paths['OUTPUT_VIDEO'], 'XVID', 30, 10)
