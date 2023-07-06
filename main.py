@@ -29,7 +29,7 @@ models = {
 }
 
 INPUT_DIR = './input/'
-IMG_INPUT = 'GT01.png'
+IMG_INPUT = 'GT04.png'
 IMG_EXT = '.png'
 
 paths = {
@@ -81,12 +81,12 @@ def apply_mask(img_path, fg_alpha_path, out_fg_path):
     img.putalpha(fg_alpha)
     img.save(out_fg_path)
 
-def spinCameraTask(viewer, width, height, task):
+def spinCameraTask(viewer, width, task):
     angleDegrees = task.time * 50
     angleRadians = angleDegrees * pi / 180.0
-    x = 40 * sin(angleRadians)
-    y = 40 * cos(angleRadians)
-    viewer.reset_camera(pos=(x, y, (width)/(800) * 1500), look_at=(x, y, 0))
+    x =  2* sin(angleRadians)/2
+    y =  2*cos(angleRadians)/2
+    viewer.reset_camera(pos=(x, y, (width/10)/80 * 100), look_at=(x, y, 0))
     return Task.cont
 
 width, height = resize_image(paths['image'], paths['image_resized'])
@@ -105,7 +105,7 @@ print('--TRIMAP--')
 Image.fromarray(generate_trimap(np.array(Image.open(paths['rembgv2_seg']).convert('L'))).astype('uint8'), 'L').save(paths['trimap'])
 print('--IndexMatting--')
 imagematting_indexmatting(paths['image_resized'], paths['trimap'], models['indexmatting'], paths['FG_seg'])
-apply_mask(paths['image_resized'], paths['FG_seg'], os.path.abspath(INPUT_DIR + 'FG' + IMG_EXT))
+apply_mask(paths['image_resized'], paths['FG_seg'], paths['FG'])
 
 print('--Creating foreground--')
 
@@ -120,23 +120,23 @@ print('--Creating scene--')
 config = ViewerConfig()
 config.set_window_size(1920,1080)
 config.enable_antialiasing(True, multisamples=4)
-config.show_axes(True)
-config.show_grid(True)
-config.show_fps_meter(True)
+config.show_axes(False)
+config.show_floor(False)
+config.show_grid(False)
+config.show_fps_meter(False)
 
-#viewer = Viewer(window_type='onscreen', config=config)
 with Viewer(window_type='offscreen', config=config) as viewer:
     viewer.append_group('root')
     print('Adding meshes')
 
-    viewer.append_plane('root', 'FG', (width, height))
+    viewer.append_plane('root', 'FG', (width/20, height/20))
     viewer.set_material('root', 'FG', color_rgba=(1, 1, 1, 1), texture_path=paths['FG'])
-    viewer.move_nodes('root', {'FG': ((0, -5, 500), (1, 0, 0, 0))})
+    viewer.move_nodes('root', {'FG': ((0, 0, 50), (1, 0, 0, 0))})
 
-    viewer.append_plane('root', 'BG', (width*1.5, height *1.5))
+    viewer.append_plane('root', 'BG', (width/10, height /10))
     viewer.set_material('root', 'BG', color_rgba=(1, 1, 1, 1), texture_path=paths['BG'])
     viewer.move_nodes('root', {'BG': ((0, 0, 0), (1, 0, 0, 0))})
     print('Control moving')
-    viewer.add_task(spinCameraTask, "Moving", extra_args = [viewer, width, height], append_task=True)
+    viewer.add_task(spinCameraTask, "Moving", extra_args = [viewer, width], append_task=True)
     print('recording film')
     viewer.save_movie(paths['OUTPUT_VIDEO'], 'XVID', 30, 10)
