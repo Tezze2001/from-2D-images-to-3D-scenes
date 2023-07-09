@@ -29,7 +29,7 @@ models = {
 }
 
 INPUT_DIR = './input/'
-IMG_INPUT = 'GT04.png'
+IMG_INPUT = 'img21.png'
 IMG_EXT = '.png'
 
 paths = {
@@ -75,6 +75,10 @@ def dilate_mask(input_path, output_path):
     dilated = cv.dilate(imm, kernel, iterations=10, borderType=cv.BORDER_CONSTANT)
     cv.imwrite(output_path, dilated)
 
+def bin_dil_mask(input_path, output_path):
+    Image.fromarray(binarization_mask(input_path).astype('uint8'), 'L').save('./input/lama/fg_seg_bin_ext.png')
+    dilate_mask('./input/lama/fg_seg_bin_ext.png', output_path)
+
 def apply_mask(img_path, fg_alpha_path, out_fg_path):
     img = Image.open(img_path)
     fg_alpha = Image.open(fg_alpha_path)
@@ -85,7 +89,7 @@ def spinCameraTask(viewer, width, task):
     angleDegrees = task.time * 50
     angleRadians = angleDegrees * pi / 180.0
     x =  2* sin(angleRadians)/2
-    y =  2*cos(angleRadians)/2
+    y =  2* cos(angleRadians)/2
     viewer.reset_camera(pos=(x, y, (width/10)/80 * 100), look_at=(x, y, 0))
     return Task.cont
 
@@ -99,7 +103,7 @@ Image.fromarray(binarization_mask(paths['lama_mask']).astype('uint8'), 'L').save
                                                                                                                            
 print('--LAMA--')
 imageinpainting_lama(os.path.abspath(INPUT_DIR), models['lama']['model'], models['lama']['checkpoint'],paths['BG'])
-print('--REMBGV2--')
+print('--RBV2--')
 imagematting_rembgv2(paths['image_resized'],paths['BG'], models['removebackgroundv2'], paths['rembgv2_seg'])
 print('--TRIMAP--')
 Image.fromarray(generate_trimap(np.array(Image.open(paths['rembgv2_seg']).convert('L'))).astype('uint8'), 'L').save(paths['trimap'])
@@ -111,7 +115,7 @@ print('--Creating foreground--')
 
 os.makedirs(INPUT_DIR + 'lama') if not os.path.exists(INPUT_DIR + 'lama') else None
 os.system('cp ' + paths['image_resized'] + ' ' + INPUT_DIR + 'lama/' + paths['image_resized'].split('/')[-1])  
-dilate_mask(paths['lama_mask'], paths['lama_mask_dilated'])
+bin_dil_mask(paths['lama_mask'], paths['lama_mask_dilated'])
 
 imageinpainting_lama(INPUT_DIR + 'lama', models['lama']['model'], models['lama']['checkpoint'],paths['BG'])
 
