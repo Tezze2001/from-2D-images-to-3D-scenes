@@ -13,8 +13,8 @@ from models_source.removebackgroundv2.util import imagematting_rembgv2
 from models_source.indexmatting.index_matting import imagematting_indexmatting
 from models_source.lama.predict import imageinpainting_lama
 
-from panda3d_viewer import Viewer
-from panda3d_viewer import ViewerConfig
+from panda3d_viewer.panda3d_viewer import Viewer
+from panda3d_viewer.panda3d_viewer import ViewerConfig
 
 
 
