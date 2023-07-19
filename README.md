@@ -2,29 +2,40 @@
 ## Enviroment setup
 It is required python 3.6 and it is suggested to use python eviroment.
 
-First of all create new python enviroment inside .venv folder.
+First of all clone the repository and enter in the folder just created. 
 ```shell
-foo@bar:~$ python3.6 -m venv .venv
+foo@bar:~$ git clone https://github.com/Tezze2001/from-2D-images-to-3D-scenes.git
+foo@bar:~$ cd from-2D-images-to-3D-scenes
+```
+
+Create new python enviroment inside .venv folder.
+```shell
+foo@bar:~/from-2D-images-to-3D-scenes$ python3.6 -m venv .venv
 ```
 
 Activate the virtual enviroment.
 ```shell
-foo@bar:~$ source .venv/bin/activate
+foo@bar:~/from-2D-images-to-3D-scenes$ source .venv/bin/activate
+```
+
+Update pip package.
+```shell
+(.venv) foo@bar:~/from-2D-images-to-3D-scenes$ pip install --upgrade pip
 ```
 
 Install all the dependences.
 ```shell
-(.venv) foo@bar:~$ pip install -r requirements.txt
+(.venv) foo@bar:~/from-2D-images-to-3D-scenes$ pip install -r requirements.txt
 ```
 
 Clone inside the main directory the wrapper of Panda3D
 ```shell
-(.venv) foo@bar:~$ git clone https://github.com/Tezze2001/panda3d_viewer.git
+(.venv) foo@bar:~/from-2D-images-to-3D-scenes$ git clone https://github.com/Tezze2001/panda3d_viewer.git
 ```
 
 Download models and checkpoints of the neural networks inside the following paths:
 - [isnet-general-use.pth](https://drive.google.com/file/d/1nV57qKuy--d5u1yvkng9aXW1KS4sOpOi/view): put this file inside the folder models_source>isnet
-- [best.ckpt](https://disk.yandex.ru/d/ouP6l8VJ0HpMZg): put this file inside the folder models_source>lama
+- [best.ckpt](https://disk.yandex.ru/d/ouP6l8VJ0HpMZg/models): put this file inside the folder models_source>lama
 - [torchscript_resnet50_fp32.pth](https://drive.google.com/file/d/1-t9SO--H4WmP7wUl1tVNNeDkq47hjbv4/view?usp=share_link): put this file inside the folder models_source>removebackgroundv2
 - [indexnet_matting.pth.tar](https://github.com/poppinace/indexnet_matting/tree/master/pretrained): put this file inside the folder models_source>indexmatting
 
@@ -32,14 +43,14 @@ Now you have everything to execute sorce code.
 
 ## Using
 To execute the source code follow these steps:
-- create the input folder inside the main directory
-- copy the image in the input folder
-- update with name and extension of the file in the main.py
+- create the folder "input" inside the main directory
+- copy the image in the folder created before
+- update IMG_INPUT variable in main.py with name and extension of the file
     ```python
     # main.py
     IMG_INPUT = 'name.extension'
     ```
-- update with the output path of the video
+- update paths dictionary with the output path of the animation
     ```python
     # main.py
    
