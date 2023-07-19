@@ -47,12 +47,13 @@ To execute the source code follow these steps:
         'image': os.path.abspath(INPUT_DIR + IMG_INPUT),
         'image_resized': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + IMG_EXT),
         'lama_mask': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + '_mask001' + IMG_EXT),
+        'lama_mask_dilated': os.path.abspath(INPUT_DIR + 'lama/' + IMG_INPUT.split('.')[0] + '_mask001' + IMG_EXT),
         'BG': os.path.abspath(INPUT_DIR + 'BG' + IMG_EXT),
         'rembgv2_seg': os.path.abspath(INPUT_DIR + IMG_INPUT.split('.')[0] + '_seg' + IMG_EXT),
         'trimap': os.path.abspath(INPUT_DIR + 'trimap' + IMG_EXT),
         'FG_seg': os.path.abspath(INPUT_DIR + 'FG_seg' + IMG_EXT),
         'FG': os.path.abspath(INPUT_DIR + 'FG' + IMG_EXT),
-        'OUTPUT_VIDEO': os.path.abspath('./output.avi') #here
+        'OUTPUT_VIDEO': os.path.abspath('./output.avi') # here
     }
     ```
 - run the code

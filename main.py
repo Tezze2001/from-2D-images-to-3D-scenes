@@ -29,7 +29,7 @@ models = {
 }
 
 INPUT_DIR = './input/'
-IMG_INPUT = 'img21.png'
+IMG_INPUT = 'GT04.png'
 IMG_EXT = '.png'
 
 paths = {
